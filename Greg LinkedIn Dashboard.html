@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greg Alvo — LinkedIn Performance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
+<style>
+:root {
+  --og-midnight: #17132F;
+  --og-dark-indigo: #2E2A47;
+  --og-green: #009A50;
+  --og-groovy-green: #00FF85;
+  --og-intense-cyan: #00FAFF;
+  --og-laser-lemon: #EAFF00;
+  --og-white: #FFFFFF;
+  --og-off-white: #F5F5F5;
+  --og-font: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Semantic tokens */
+  --bg: var(--og-midnight);
+  --surface: var(--og-white);
+  --surface2: #F5F5F5;
+  --border: transparent;
+  --text: var(--og-midnight);
+  --text-dim: var(--og-midnight);
+  --text-muted: var(--og-midnight);
+  --text-on-dark: var(--og-white);
+  --accent: var(--og-green);
+  --accent-bright: var(--og-groovy-green);
+  --accent-glow: rgba(0,154,80,0.08);
+
+  /* Chart system colors (OG spec) */
+  --chart-1: #00FF85;
+  --chart-2: #009A50;
+  --chart-3: #00FAFF;
+  --chart-4: #0080B0;
+  --chart-5: #004F8C;
+  --chart-6: #EAFF00;
+  --chart-7: #FF8C00;
+  --chart-8: #D46AFF;
+  --chart-9: #7821F5;
+
+  /* Semantic chart colors */
+  --green-up: var(--og-green);
+  --green-dim: rgba(0,154,80,0.1);
+  --red: #C7254E;
+  --red-dim: rgba(199,37,78,0.08);
+  --blue: #0080B0;
+  --blue-dim: rgba(0,128,176,0.08);
+  --yellow: #B08900;
+  --yellow-dim: rgba(176,137,0,0.08);
+  --purple: #7821F5;
+  --purple-dim: rgba(120,33,245,0.08);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text-on-dark);
+  font-family: var(--og-font);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+}
+
+/* ── HEADER (dark panel per OG brand) ── */
+.header {
+  background: transparent;
+  border-radius: var(--radius);
+  padding: 40px 0 36px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+/* Brand blob shape */
+.header::before {
+  content: '';
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: -40px;
+  top: -80px;
+  background: linear-gradient(135deg, #009A50, #00FF85, #00FAFF);
+  border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+  opacity: 0.25;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: 60px;
+  bottom: -60px;
+  background: linear-gradient(135deg, #00FF85, #71ACFF, #7821F5);
+  border-radius: 40% 60% 30% 70% / 60% 40% 50% 50%;
+  opacity: 0.15;
+}
+.header h1 {
+  font-weight: 700;
+  font-size: 40px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  color: var(--og-white);
+  position: relative;
+  z-index: 1;
+}
+.header h1 span {
+  color: var(--og-groovy-green);
+}
+.header p {
+  color: rgba(255,255,255,0.65);
+  font-size: 15px;
+  font-weight: 500;
+  position: relative;
+  z-index: 1;
+}
+.header p strong {
+  color: var(--og-white);
+  font-weight: 700;
+}
+
+/* ── BIG STAT CARDS ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--og-white);
+  border: none;
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.stat-card:nth-child(1)::before { background: var(--og-green); }
+.stat-card:nth-child(2)::before { background: var(--chart-3); }
+.stat-card:nth-child(3)::before { background: var(--chart-4); }
+.stat-card:nth-child(4)::before { background: var(--chart-7); }
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--og-midnight);
+  font-weight: 700;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+.stat-value {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+  color: var(--og-midnight);
+}
+.stat-sub {
+  font-size: 12px;
+  color: var(--og-midnight);
+  opacity: 0.6;
+}
+
+/* ── SECTION HEADERS ── */
+.section-header {
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 20px;
+  margin-top: 48px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: var(--og-white);
+}
+.section-header span {
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  margin-left: 12px;
+  font-weight: 500;
+}
+
+/* ── INSIGHT GRID ── */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.insight-card {
+  background: var(--og-white);
+  border: none;
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.insight-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+.insight-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--og-midnight);
+}
+.badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+.badge-up { background: var(--green-dim); color: var(--og-green); }
+.badge-down { background: var(--red-dim); color: var(--red); }
+.badge-info { background: var(--blue-dim); color: var(--blue); }
+
+/* ── HORIZONTAL BAR CHARTS ── */
+.hbar-group { margin-bottom: 8px; }
+.hbar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  cursor: default;
+}
+.hbar-row:hover .hbar-fill { filter: brightness(1.1); }
+.hbar-label {
+  width: 140px;
+  font-size: 13px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 16px;
+  font-weight: 500;
+}
+.hbar-track {
+  flex: 1;
+  height: 32px;
+  background: #EEEEEE;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.hbar-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 50px;
+  color: var(--og-midnight);
+}
+.hbar-meta {
+  width: 70px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-left: 10px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+/* ── DOT STRIP ── */
+.dot-strip {
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  height: 110px;
+  padding: 16px 0;
+  background: var(--og-white);
+  border: none;
+  border-radius: var(--radius);
+  padding: 20px 16px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.dot-strip-bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: opacity 0.2s, transform 0.15s;
+  cursor: pointer;
+  position: relative;
+}
+.dot-strip-bar:hover { transform: scaleX(1.5); }
+.dot-strip-bar.top { opacity: 1; background: var(--og-green); }
+.dot-strip-bar.mid { opacity: 0.7; background: var(--chart-4); }
+.dot-strip-bar.low { opacity: 0.6; background: var(--og-dark-indigo); }
+
+/* ── TOOLTIP ── */
+.tooltip {
+  position: fixed;
+  background: var(--og-midnight);
+  border: 1px solid var(--og-dark-indigo);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 12px;
+  max-width: 340px;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 12px 40px rgba(23,19,47,0.35);
+  display: none;
+  line-height: 1.5;
+  color: var(--og-white);
+}
+.tooltip .tt-eng {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--og-groovy-green);
+}
+.tooltip .tt-meta {
+  color: rgba(255,255,255,0.55);
+  margin-top: 4px;
+  font-weight: 500;
+}
+.tooltip .tt-content {
+  color: rgba(255,255,255,0.7);
+  margin-top: 6px;
+  font-style: italic;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 6px;
+}
+
+/* ── MULTIPLIER CARDS ── */
+.multiplier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.mult-card {
+  background: var(--og-white);
+  border: none;
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: left;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.mult-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+.mult-card .mult-takeaway {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--og-midnight);
+  margin-bottom: 14px;
+}
+.mult-card .mult-takeaway em {
+  font-style: normal;
+  color: var(--og-green);
+}
+.mult-card .mult-bar-track {
+  height: 6px;
+  background: #EEEEEE;
+  border-radius: 3px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.mult-card .mult-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--og-green);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mult-card .mult-stat {
+  font-size: 13px;
+  color: var(--og-midnight);
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+/* ── TAKEAWAY CALLOUT ── */
+.takeaway {
+  background: var(--og-dark-indigo);
+  border-left: 3px solid var(--og-groovy-green);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px 20px;
+  margin: -2px 0 10px 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+.takeaway strong { color: var(--og-white); font-weight: 700; }
+.takeaway em { color: var(--og-groovy-green); font-style: normal; font-weight: 700; }
+
+/* ── RANKED MULTIPLIER CARDS ── */
+.ranked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.ranked-card {
+  background: var(--og-white);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+.ranked-num {
+  font-size: 20px;
+  padding-top: 2px;
+  text-align: center;
+  line-height: 1;
+}
+.ranked-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ranked-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--og-midnight);
+  line-height: 1.3;
+}
+.ranked-bar-track {
+  height: 8px;
+  background: #EEEEEE;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+.ranked-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--og-green);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ranked-lift {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--og-green);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+
+/* ── STOP DOING SECTION ── */
+.stop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.stop-card {
+  background: var(--og-white);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  border-top: 3px solid var(--red);
+}
+.stop-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--og-midnight);
+  margin-bottom: 8px;
+}
+.stop-card p {
+  font-size: 13px;
+  color: var(--og-midnight);
+  opacity: 0.7;
+  line-height: 1.5;
+}
+
+/* ── FORMAT COMPARISON CHART ── */
+.format-chart {
+  background: var(--og-white);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  margin-bottom: 32px;
+}
+.format-chart h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--og-midnight);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.format-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.format-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--og-midnight);
+}
+.format-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.format-bar {
+  height: 28px;
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.format-bar-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--og-midnight);
+  min-width: 36px;
+}
+.format-legend {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--og-midnight);
+  opacity: 0.6;
+}
+.format-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.format-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* ── FORMULA BOX ── */
+.formula-box {
+  background: var(--og-dark-indigo);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 40px 36px 36px;
+  margin: 32px 0;
+  position: relative;
+  overflow: hidden;
+}
+.formula-box::after {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: -60px;
+  bottom: -100px;
+  background: linear-gradient(135deg, #009A50, #00FF85, #00FAFF);
+  border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
+  opacity: 0.12;
+}
+.formula-box .formula-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--og-white);
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+}
+.formula-box .formula-title span {
+  color: var(--og-groovy-green);
+}
+.formula-box .formula-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  line-height: 1.55;
+}
+.formula-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  position: relative;
+  z-index: 1;
+}
+.formula-step {
+  background: var(--og-dark-indigo);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  text-align: center;
+  flex: 1;
+  min-width: 130px;
+}
+.formula-step .fs-num {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.formula-step .fs-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 2px;
+  color: var(--og-groovy-green);
+}
+.formula-step .fs-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+}
+.formula-arrow {
+  font-size: 18px;
+  color: rgba(255,255,255,0.25);
+  padding: 0 6px;
+}
+
+/* ── POST FEED ── */
+.post-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.post-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--og-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  transition: box-shadow 0.15s;
+  cursor: default;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  text-decoration: none;
+  color: inherit;
+}
+.post-row:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.16); }
+a.post-link { cursor: pointer; }
+a.post-link:hover { box-shadow: 0 4px 16px rgba(0,154,80,0.2); }
+.post-rank {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--og-midnight);
+  opacity: 0.4;
+  text-align: center;
+}
+.post-eng {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+.post-content {
+  font-size: 13px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.post-tags {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.post-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+/* ── FILTER PILLS ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.filter-pill {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  font-family: var(--og-font);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-pill:hover { background: rgba(255,255,255,0.2); color: var(--og-white); }
+.filter-pill.active {
+  background: var(--og-green);
+  border: none;
+  color: var(--og-white);
+  font-weight: 700;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .insight-grid { grid-template-columns: 1fr; }
+  .stop-grid { grid-template-columns: 1fr; }
+  .header h1 { font-size: 28px; }
+  .formula-steps { flex-direction: column; }
+  .formula-arrow { transform: rotate(90deg); }
+  .container { padding: 20px 16px 60px; }
+  .format-row { grid-template-columns: 100px 1fr 1fr; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header (dark panel) -->
+  <div class="header animate-in">
+    <h1>Greg Alvo <span>LinkedIn Performance</span></h1>
+    <p><strong>220 original posts</strong> analyzed &mdash; engagement = likes + comments + reposts</p>
+  </div>
+
+  <!-- Big Stats -->
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- The Formula (dark panel) -->
+  <div class="formula-box animate-in" style="animation-delay:0.12s">
+    <div class="formula-title"><span>The Formula</span></div>
+    <div class="formula-sub">Based on 220 posts of data, here's the repeatable pattern for high-performing exec LinkedIn content:</div>
+    <div class="formula-steps">
+      <div class="formula-step">
+        <div class="fs-num">Step 1</div>
+        <div class="fs-title">Narrative Hook</div>
+        <div class="fs-desc">"Last week..." "When I started..."</div>
+      </div>
+      <div class="formula-arrow">&rarr;</div>
+      <div class="formula-step">
+        <div class="fs-num">Step 2</div>
+        <div class="fs-title">The Thing</div>
+        <div class="fs-desc">Name the brand + what happened</div>
+      </div>
+      <div class="formula-arrow">&rarr;</div>
+      <div class="formula-step">
+        <div class="fs-num">Step 3</div>
+        <div class="fs-title">The So-What</div>
+        <div class="fs-desc">Founder POV on why it matters</div>
+      </div>
+      <div class="formula-arrow">&rarr;</div>
+      <div class="formula-step">
+        <div class="fs-num">Step 4</div>
+        <div class="fs-title">Generous Tag</div>
+        <div class="fs-desc">Credit people by name</div>
+      </div>
+      <div class="formula-arrow">&rarr;</div>
+      <div class="formula-step">
+        <div class="fs-num">Step 5</div>
+        <div class="fs-title">The Pull</div>
+        <div class="fs-desc">End with a question or CTA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engagement Multiplier Checklist -->
+  <h2 class="section-header animate-in" style="animation-delay:0.16s">
+    <span class="material-symbols-outlined" style="color:var(--og-green);margin-right:4px;font-size:28px">trending_up</span>
+    Engagement Multiplier Checklist
+  </h2>
+  <div id="multGrid"></div>
+
+  <!-- Post Type Format Chart -->
+  <div class="format-chart animate-in" style="animation-delay:0.18s" id="formatChart">
+    <h3>
+      <span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">image</span>
+      Post Type Format
+      <span class="badge badge-info">top 25% vs bottom 25%</span>
+    </h3>
+    <div class="format-legend">
+      <span><span class="format-legend-dot" style="background:var(--og-green)"></span> Top 25%</span>
+      <span><span class="format-legend-dot" style="background:#CCCCCC"></span> Bottom 25%</span>
+    </div>
+    <div class="format-row">
+      <div class="format-label">Image</div>
+      <div class="format-bar-wrap"><div class="format-bar" style="width:55%;background:var(--og-green)"></div><div class="format-bar-pct">55%</div></div>
+      <div class="format-bar-wrap"><div class="format-bar" style="width:22%;background:#CCCCCC"></div><div class="format-bar-pct" style="opacity:0.5">22%</div></div>
+    </div>
+    <div class="format-row">
+      <div class="format-label">Article link</div>
+      <div class="format-bar-wrap"><div class="format-bar" style="width:29%;background:var(--og-green)"></div><div class="format-bar-pct">29%</div></div>
+      <div class="format-bar-wrap"><div class="format-bar" style="width:65%;background:#CCCCCC"></div><div class="format-bar-pct" style="opacity:0.5">65%</div></div>
+    </div>
+    <div class="format-row">
+      <div class="format-label">Text-only</div>
+      <div class="format-bar-wrap"><div class="format-bar" style="width:15%;background:var(--og-green)"></div><div class="format-bar-pct">15%</div></div>
+      <div class="format-bar-wrap"><div class="format-bar" style="width:9%;background:#CCCCCC"></div><div class="format-bar-pct" style="opacity:0.5">9%</div></div>
+    </div>
+  </div>
+
+  <!-- What to Stop Doing -->
+  <h2 class="section-header animate-in" style="animation-delay:0.185s">
+    <span class="material-symbols-outlined" style="color:var(--red);margin-right:4px;font-size:28px">do_not_disturb</span>
+    What to Stop Doing
+  </h2>
+  <div class="stop-grid">
+    <div class="stop-card animate-in" style="animation-delay:0.19s">
+      <h4>Link-drops with no context</h4>
+      <p>Article shares with &lt;15 words = median 5 engagement. If it's worth sharing, it's worth 3 sentences of Greg's take on it.</p>
+    </div>
+    <div class="stop-card animate-in" style="animation-delay:0.195s">
+      <h4>Hashtag reliance</h4>
+      <p>The data shows no lift; slight drag. One or two relevant ones are fine. Five is noise.</p>
+    </div>
+    <div class="stop-card animate-in" style="animation-delay:0.2s">
+      <h4>Generic cheerleading</h4>
+      <p>"Amazing!" without specifics lands in the bottom half. Add <em>what</em> was amazing and <em>why</em> it matters.</p>
+    </div>
+  </div>
+
+  <!-- Top Posts Feed (moved up) -->
+  <h2 class="section-header animate-in" style="animation-delay:0.21s">
+    <span class="material-symbols-outlined" style="color:var(--og-green);margin-right:4px;font-size:28px">workspace_premium</span>
+    Top 20 Posts
+  </h2>
+  <div class="filter-bar" id="filterBar"></div>
+  <div class="post-feed" id="postFeed"></div>
+
+  <!-- Every Post -->
+  <h2 class="section-header animate-in" style="animation-delay:0.24s">
+    <span class="material-symbols-outlined" style="color:var(--og-green);margin-right:4px;font-size:28px">bar_chart</span>
+    Every Post, Ranked <span>sorted by total engagement</span>
+  </h2>
+  <div class="dot-strip" id="dotStrip"></div>
+
+  <!-- Charts -->
+  <div class="insight-grid" style="margin-top:32px">
+    <div class="insight-card animate-in" style="animation-delay:0.27s">
+      <h3><span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">image</span> Post Format <span class="badge badge-info">by median engagement</span></h3>
+      <div id="chartFormat" class="hbar-group"></div>
+    </div>
+    <div class="insight-card animate-in" style="animation-delay:0.30s">
+      <h3><span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">edit_note</span> Opening Style <span class="badge badge-up">biggest unlock</span></h3>
+      <div id="chartOpener" class="hbar-group"></div>
+    </div>
+    <div class="insight-card animate-in" style="animation-delay:0.33s">
+      <h3><span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">category</span> Content Archetype <span class="badge badge-info">by median engagement</span></h3>
+      <div id="chartArchetype" class="hbar-group"></div>
+    </div>
+    <div class="insight-card animate-in" style="animation-delay:0.36s">
+      <h3><span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">last_page</span> Closing Style <span class="badge badge-info">by median engagement</span></h3>
+      <div id="chartCloser" class="hbar-group"></div>
+    </div>
+    <div class="insight-card animate-in" style="animation-delay:0.39s">
+      <h3><span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">short_text</span> Word Count <span class="badge badge-up">sweet spot: 41-100 words</span></h3>
+      <div id="chartLength" class="hbar-group"></div>
+    </div>
+    <div class="insight-card animate-in" style="animation-delay:0.42s">
+      <h3><span class="material-symbols-outlined" style="font-size:18px;color:var(--og-green)">calendar_month</span> Engagement by Year <span class="badge badge-info">trend over time</span></h3>
+      <div id="chartYear" class="hbar-group"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = [{"c": "Huge congrats to our customers at MANSCAPED, E.L.F. BEAUTY, Liquid I.V. and a number of other Super Bowl brands for their standout commercials on Sunday! We're ", "t": "Image", "l": 15, "cm": 0, "r": 0, "e": 15, "w": 36, "ym": "2026-02", "y": "2026", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7427439070307450880"}, {"c": "A big congrats to Ordergroove customer, Tractor Supply Company, on winning Best Subscription Strategy of the year award by Modern Retail! This Fortune 500 compa", "t": "Image", "l": 71, "cm": 2, "r": 0, "e": 73, "w": 72, "ym": "2025-12", "y": "2025", "op": "other", "ar": "culture", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": true, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7408873224484179968"}, {"c": "Excited to share another leading DTC brand on Shopify turning to Ordergroove to migrate and scale their subscription-first business! Congratulations to ONNIT an", "t": "Image", "l": 46, "cm": 3, "r": 0, "e": 49, "w": 43, "ym": "2025-11", "y": "2025", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7394819170183311360"}, {"c": "Last week, Google announced that they enabled (for the first time ever) selling physical product subscriptions directly on Google Shopping ads -- opening one of", "t": "Article", "l": 97, "cm": 7, "r": 3, "e": 107, "w": 155, "ym": "2025-10", "y": "2025", "op": "narrative", "ar": "industry_pov", "cl": "cta", "fp": true, "nm": true, "br": true, "dt": true, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7386126402401607680"}, {"c": "Shopify, Salesforce, Stripe, Walmart etc. are all partnering with OpenAI… So, what percentage of eCommerce GMV will flow through LLMs?   LinkedIn is filled with", "t": "Text", "l": 84, "cm": 5, "r": 3, "e": 92, "w": 67, "ym": "2025-10", "y": "2025", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": false, "br": true, "dt": false, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7384648062004264960"}, {"c": "Omnichannel subscriptions are the holy grail of retail. Scott T Johnston and Pet Valu’s 700+ stores are doing this right. Come join us for next week’s session! ", "t": "Text", "l": 31, "cm": 3, "r": 0, "e": 34, "w": 30, "ym": "2025-08", "y": "2025", "op": "other", "ar": "hiring", "cl": "cta", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7361145421445955586"}, {"c": "The trifecta fueling Dollar Shave Club’s and other subscription-first brands' next wave of growth? Ordergroove + Shopify + Klaviyo.  DSC migrated from homegrown", "t": "Article", "l": 76, "cm": 2, "r": 2, "e": 80, "w": 67, "ym": "2025-06", "y": "2025", "op": "other", "ar": "customer_win", "cl": "cta", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7343667789670354944"}, {"c": "Welcome Herbalife to Ordergroove!", "t": "Image", "l": 45, "cm": 1, "r": 0, "e": 46, "w": 4, "ym": "2025-06", "y": "2025", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7341452578485907460"}, {"c": "Ulta Beauty launches into relationship commerce with Ordergroove! Congrats to the nation's largest beauty retailer on doubling down on a frictionless future for", "t": "Image", "l": 78, "cm": 3, "r": 2, "e": 83, "w": 38, "ym": "2025-06", "y": "2025", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7338947667382681600"}, {"c": "Very proud of the Ordergroove team for hitting new growth records across merchant GMV, bookings, and EBITDA in Q1! Only possible with our A+ team, ecosystem of ", "t": "Image", "l": 87, "cm": 7, "r": 3, "e": 97, "w": 132, "ym": "2025-06", "y": "2025", "op": "emotion", "ar": "industry_pov", "cl": "cta", "fp": true, "nm": false, "br": false, "dt": true, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7338570028968988673"}, {"c": "Beautiful day to Make Commerce Better for Everyone with Shopify. What an amazing company and ecosystem that we’re proud to be a part of at Ordergroove. Paul Fre", "t": "Image", "l": 159, "cm": 4, "r": 0, "e": 163, "w": 30, "ym": "2025-05", "y": "2025", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7334202061955219456"}, {"c": "I’m very excited to introduce SAPIS: Ordergroove's patented Subscribe and Pickup In-Store solution, setting a new standard for omnichannel relationship commerce", "t": "Image", "l": 103, "cm": 11, "r": 9, "e": 123, "w": 88, "ym": "2025-05", "y": "2025", "op": "other", "ar": "hiring", "cl": "cta", "fp": true, "nm": true, "br": false, "dt": true, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7325898289554366464"}, {"c": "Bonafide Health is one of the greatest DTC stories out there, yet seldomly discussed. An 80%, subscription-first business at scale that migrated to Ordergroove ", "t": "Image", "l": 50, "cm": 3, "r": 1, "e": 54, "w": 89, "ym": "2025-04", "y": "2025", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": true, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7321262480578551810"}, {"c": "While you're posting about your Shoptalk booth, I'm excited to share that Ordergroove is hiring a GM of Retail (a senior sales leader) to expand our retail netw", "t": "Text", "l": 115, "cm": 2, "r": 8, "e": 125, "w": 118, "ym": "2025-03", "y": "2025", "op": "other", "ar": "hiring", "cl": "cta", "fp": true, "nm": true, "br": true, "dt": true, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7310300874222825472"}, {"c": "There are few things in life more fulfilling, important and intimate than the feeding of a newborn baby. Proud to share that ByHeart, the rocketship baby formul", "t": "Image", "l": 50, "cm": 2, "r": 1, "e": 53, "w": 52, "ym": "2025-03", "y": "2025", "op": "other", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7303499551837937664"}, {"c": "Ordergroove is hiring a VP of Product Marketing to lead our very talented PMM team! If you are a professional dot connector, have a geekish passion for all thin", "t": "Text", "l": 141, "cm": 9, "r": 12, "e": 162, "w": 56, "ym": "2025-01", "y": "2025", "op": "announcement", "ar": "hiring", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7290394672147910656"}, {"c": "Ordergroove is hiring talented Solutions Partners to join our terrific Customer Solutions team! Be part of a team that drives seamless customer onboarding and c", "t": "Text", "l": 62, "cm": 4, "r": 2, "e": 68, "w": 63, "ym": "2025-01", "y": "2025", "op": "announcement", "ar": "hiring", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7287936164257296386"}, {"c": "Ordergroove is hiring a Director/Vice President of Enterprise Customer Success to join our CS org and work under the leadership of our very talented SVP of CS! ", "t": "Text", "l": 154, "cm": 9, "r": 9, "e": 172, "w": 48, "ym": "2025-01", "y": "2025", "op": "announcement", "ar": "hiring", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7285708867546542080"}, {"c": "What a week last week was! We jumpstarted the week with a Board Meeting celebrating a record Q3 and several major milestones followed by an incredible all-hands", "t": "Image", "l": 106, "cm": 2, "r": 0, "e": 108, "w": 109, "ym": "2024-12", "y": "2024", "op": "emotion", "ar": "culture", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7274412691174178817"}, {"c": "There are few beauty brands out there hotter and more iconic than E.L.F. BEAUTY. They are trailblazers in every sense of the word - and their approach to relati", "t": "Image", "l": 33, "cm": 3, "r": 0, "e": 36, "w": 53, "ym": "2024-12", "y": "2024", "op": "other", "ar": "industry_pov", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7270857115278139393"}, {"c": "ByHeart migrates to Ordergroove! Proud to be powering ByHeart's subscriptions, one of the fastest growing baby companies on planet earth. While we're just about", "t": "Image", "l": 59, "cm": 4, "r": 1, "e": 64, "w": 37, "ym": "2024-11", "y": "2024", "op": "other", "ar": "customer_win", "cl": "hashtag", "fp": true, "nm": false, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7264658216867741696"}, {"c": "Thrilled to announce the partnership of Ordergroove, PetMeds® | PetCareRx®, and Agentforce Commerce to elevate PetMeds’ subscription-first growth! I'm even more", "t": "Image", "l": 57, "cm": 4, "r": 0, "e": 61, "w": 55, "ym": "2024-11", "y": "2024", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7262895383117185025"}, {"c": "2023 was Ordergroove’s best year yet and 2024 is poised to be even better. Thank you to our amazing team, customers and partners on all of your partnership and ", "t": "Image", "l": 65, "cm": 4, "r": 0, "e": 69, "w": 116, "ym": "2024-04", "y": "2024", "op": "other", "ar": "industry_pov", "cl": "question", "fp": true, "nm": false, "br": false, "dt": true, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7181653414852886528"}, {"c": "This is an awesome opportunity for a Manager to work directly with a terrific leader in Ali Mapes, Ordergroove's SVP of Customer Success! eCommerce/merchant exp", "t": "Image", "l": 31, "cm": 2, "r": 0, "e": 33, "w": 37, "ym": "2024-03", "y": "2024", "op": "announcement", "ar": "industry_pov", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7171914127106363392"}, {"c": "Excited to welcome Eric Andrews to the Ordergroove team as our Director of Commerce Strategy and Growth! Eric was formerly head of finance of a software company", "t": "Article", "l": 45, "cm": 1, "r": 2, "e": 48, "w": 98, "ym": "2024-03", "y": "2024", "op": "emotion", "ar": "hiring", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7171498019224301569"}, {"c": "Ordergroove’s enterprise-ready bundling to supercharge recurring revenue profitability... while maximizing merchant flexibility. Read on to learn how $4B Freshp", "t": "Article", "l": 43, "cm": 0, "r": 1, "e": 44, "w": 30, "ym": "2024-02", "y": "2024", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7166126708490768384"}, {"c": "Dirk and Kelly, let's do this.   To all commercetools brands and retailers: we'd love to help you scale or build your recurring revenue story.", "t": "Image", "l": 44, "cm": 0, "r": 0, "e": 44, "w": 24, "ym": "2024-02", "y": "2024", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": false, "br": false, "dt": false, "em": true, "lb": "short"}, {"c": "Wow - what a week last week was! The Ordergroove team came together in Florida for a few days and it was a total blast.  We're a remote company but the energy a", "t": "Image", "l": 169, "cm": 11, "r": 1, "e": 181, "w": 209, "ym": "2023-12", "y": "2023", "op": "emotion", "ar": "culture", "cl": "hashtag", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7143996982095708160"}, {"c": "Unbelievable brand and product that I'm proud to have as an Ordergroove customer!  I cannot start my day without Firebelly Tea (nor can my wife Caroline). And y", "t": "Video (LinkedIn Source)", "l": 28, "cm": 5, "r": 0, "e": 33, "w": 43, "ym": "2023-11", "y": "2023", "op": "emotion", "ar": "other", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7135398132460191744"}, {"c": "It was a lot of fun recording the CommerceTomorrow Podcast🎙with Kelly and Dirk of commercetools, live from NYC! We discuss all things subscriptions and the fric", "t": "Article", "l": 45, "cm": 2, "r": 0, "e": 47, "w": 29, "ym": "2023-11", "y": "2023", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7130181765951840256"}, {"c": "Welcome subscription-first agency, Anatta - Shopify Platinum Partner, to Ordergroove's Premier Partner program! We're excited to have Nirav and the terrific Ana", "t": "Article", "l": 33, "cm": 2, "r": 0, "e": 35, "w": 28, "ym": "2023-10", "y": "2023", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7123662940649463809"}, {"c": "Ranil Wiratunga, Neil Decker and the Dollar Shave Club team: it's a real pleasure to be powering your next wave of subscription growth. And for those brands con", "t": "Article", "l": 26, "cm": 1, "r": 0, "e": 27, "w": 45, "ym": "2023-10", "y": "2023", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7121172942192828416"}, {"c": "It's official, live, and scaling. Dollar Shave Club migrates to Ordergroove + Shopify, with the love and partnership of Klaviyo, iamota (a Shopify Premier Partn", "t": "Image", "l": 109, "cm": 8, "r": 0, "e": 117, "w": 53, "ym": "2023-10", "y": "2023", "op": "announcement", "ar": "customer_win", "cl": "question", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7120463436446056448"}, {"c": "I’m excited to share Ordergroove’s long-term partnership renewal with GNC! It’s always been a true honor to serve GNC, a brand I’ve been a proud customer of sin", "t": "Image", "l": 66, "cm": 1, "r": 0, "e": 67, "w": 88, "ym": "2023-09", "y": "2023", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7105186542242930689"}, {"c": "Congrats to Shopify on today’s Editions announcements!  In case you missed it, Shopify shared some big news in their update: Ordergroove has officially launched", "t": "Video (LinkedIn Source)", "l": 130, "cm": 14, "r": 6, "e": 150, "w": 130, "ym": "2023-07", "y": "2023", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7090043568035098626"}, {"c": "Great brand driving serious growth with Ordergroove's best-in-class prepaid subscriptions. Congratulations to La Colombe Coffee Workshop on this as well as your", "t": "Image", "l": 22, "cm": 1, "r": 0, "e": 23, "w": 30, "ym": "2023-07", "y": "2023", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7089615739094986752"}, {"c": "A huge congrats to our friends at IL MAKIAGE, SpoiledChild + L Catterton on yesterday's public debut of ODDITY! It's amazing to see your meteoric rise as one of", "t": "Video (LinkedIn Source)", "l": 20, "cm": 1, "r": 0, "e": 21, "w": 40, "ym": "2023-07", "y": "2023", "op": "other", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7087805358508756992"}, {"c": "I love this team and company. Team Ordergroove back at it again 5 years in a row, winning Best Companies to work in New York! Congratulations to the entire team", "t": "Image", "l": 102, "cm": 3, "r": 0, "e": 105, "w": 86, "ym": "2023-05", "y": "2023", "op": "emotion", "ar": "hiring", "cl": "cta", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7062440358487416833"}, {"c": "Awesome to see The Honest Company go headless with Ordergroove. Looks amazing!  Congrats John Keough, Pete Gerstberger, Tatjana (Jana) Schuster, MBA (Kellogg) a", "t": "Image", "l": 66, "cm": 2, "r": 0, "e": 68, "w": 24, "ym": "2023-03", "y": "2023", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:7047191464451133441"}, {"c": "Honored to win Crain's 2022 Best Place to Work in NYC award! It's only possible with the hearts of our incredible team.", "t": "Image", "l": 62, "cm": 1, "r": 0, "e": 63, "w": 22, "ym": "2022-10", "y": "2022", "op": "emotion", "ar": "culture", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6983855115124244480"}, {"c": "Very excited to unveil an update to the Ordergroove brand and website! Many thanks to the terrific Ordergroove marketing team on the tremendous output. Check it", "t": "Image", "l": 95, "cm": 8, "r": 0, "e": 103, "w": 29, "ym": "2022-07", "y": "2022", "op": "emotion", "ar": "other", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6955588322014470144"}, {"c": "Thanks, Karen and Abhishek! It was a lot of fun dunking Oreos together", "t": "Video (LinkedIn Source)", "l": 11, "cm": 1, "r": 0, "e": 12, "w": 13, "ym": "2022-06", "y": "2022", "op": "other", "ar": "other", "cl": "gratitude", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6945841047952404480"}, {"c": "Welcome David Segal, Harley Finkelstein, and the Firebelly Tea team to Ordergroove! As a big tea drinker, I can attest that this is one of the most memorable an", "t": "Image", "l": 48, "cm": 1, "r": 0, "e": 49, "w": 44, "ym": "2022-06", "y": "2022", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6942926615618162689"}, {"c": "Welcome to the family Mrs. Meyer’s Clean Day!   Success is in full bloom for this garden-inspired household cleaning brand. Their use of subscriptions and #Rela", "t": "Image", "l": 18, "cm": 1, "r": 0, "e": 19, "w": 52, "ym": "2022-06", "y": "2022", "op": "emotion", "ar": "customer_win", "cl": "question", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium"}, {"c": "Chewy's stock is up 20% today thanks to the strength and growth of their subscription business. This is the power of a company that is transforming an industry ", "t": "Text", "l": 69, "cm": 0, "r": 0, "e": 69, "w": 445, "ym": "2022-06", "y": "2022", "op": "other", "ar": "customer_win", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": true, "em": false, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6938144254577836032"}, {"c": "Hello PC Richard & Son! We're excited to introduce recurring revenue into this iconic NYC retailer's business for the first time with Ordergroove.", "t": "Image", "l": 12, "cm": 1, "r": 0, "e": 13, "w": 23, "ym": "2022-05", "y": "2022", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6932683239119601664"}, {"c": "Thanks to Finbarr Taylor, Nick Raushenbush and the entire Shogun team on this partnership!  We're excited to launch this beautiful, headless experience with you", "t": "Image", "l": 44, "cm": 0, "r": 0, "e": 44, "w": 27, "ym": "2022-05", "y": "2022", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6928060318757605376"}, {"c": "Love seeing the world-class brand, Colgate-Palmolive, making the switch to Ordergroove!", "t": "Image", "l": 36, "cm": 2, "r": 0, "e": 38, "w": 11, "ym": "2022-04", "y": "2022", "op": "emotion", "ar": "other", "cl": "statement", "fp": false, "nm": false, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6925857987949432832"}, {"c": "Welcome LVMH's Kendo Brands to Ordergroove!", "t": "Image", "l": 18, "cm": 0, "r": 0, "e": 18, "w": 6, "ym": "2022-04", "y": "2022", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6925165394206806016"}, {"c": "Very proud of this team on winning New York's Best Place to Work Award for a 4th straight year!  We work hard on our culture and while always room for improveme", "t": "Image", "l": 31, "cm": 1, "r": 0, "e": 32, "w": 63, "ym": "2022-04", "y": "2022", "op": "emotion", "ar": "culture", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6922621542115762176"}, {"c": "One of my favorite brands - now straight to your door with subscriptions by Ordergroove coming soon!  High-five to all of you babyganics' parents out there", "t": "Image", "l": 17, "cm": 0, "r": 0, "e": 17, "w": 26, "ym": "2022-04", "y": "2022", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": false, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6917554294976049152"}, {"c": "Congrats to my good friend Brett Hurt and the incredible data.world team on today's Series C announcement! Amazing mission, amazing team, and amazing company.", "t": "Video (LinkedIn Source)", "l": 5, "cm": 0, "r": 0, "e": 5, "w": 24, "ym": "2022-04", "y": "2022", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6917157171390464000"}, {"c": "Love this one! Congrats to the UK's Halfords on your membership experience launch with Ordergroove: https://lnkd.in/d6YQFmHC", "t": "Image", "l": 9, "cm": 0, "r": 0, "e": 9, "w": 16, "ym": "2022-04", "y": "2022", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": false, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6915695568044339200"}, {"c": "Shoptalk 2022? Is this really happening? Looking forward to seeing many of you next week!", "t": "Text", "l": 21, "cm": 1, "r": 0, "e": 22, "w": 15, "ym": "2022-03", "y": "2022", "op": "question", "ar": "event", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6913181461365829632"}, {"c": "Excited to welcome another subscription-first brand, MeUndies, to Ordergroove! Great product, great experience, awesome entrepreneurial story.", "t": "Image", "l": 17, "cm": 1, "r": 0, "e": 18, "w": 16, "ym": "2022-01", "y": "2022", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6891786234348609536"}, {"c": "Great brand. Great story. Thanks Chemical Guys for the continued partnership!", "t": "Image", "l": 11, "cm": 0, "r": 0, "e": 11, "w": 11, "ym": "2022-01", "y": "2022", "op": "other", "ar": "other", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6890027832123490304"}, {"c": "When I started Ordergroove, there were 3 online retailers doing subscriptions (really, 3). It's exciting and gratifying to see this thoughtful report...  'After", "t": "Article", "l": 53, "cm": 6, "r": 0, "e": 59, "w": 61, "ym": "2022-01", "y": "2022", "op": "narrative", "ar": "industry_pov", "cl": "link", "fp": true, "nm": true, "br": false, "dt": true, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6889615619008798720"}, {"c": "So proud of this team! We've won Best Places to Work in New York state 3 years in a row and now NYC. These are always my most treasured awards and it takes a vi", "t": "Image", "l": 39, "cm": 7, "r": 0, "e": 46, "w": 54, "ym": "2022-01", "y": "2022", "op": "emotion", "ar": "culture", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6886349705886887936"}, {"c": "Love this brand and love being a part of their Relationship Commerce journey. Ordergroove + Stumptown Coffee Roasters:", "t": "Image", "l": 26, "cm": 0, "r": 0, "e": 26, "w": 18, "ym": "2022-01", "y": "2022", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6884202624615243776"}, {"c": "Welcome Todd and Lindsay! Excited to build a world-class company together.", "t": "Image", "l": 15, "cm": 1, "r": 0, "e": 16, "w": 11, "ym": "2021-12", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6876963385905356800"}, {"c": "Welcome, Karthik! ML continues to be a key area of investment for Ordergroove since Relationship Commerce deserves to be personalized like eCommerce. Excited to", "t": "Image", "l": 14, "cm": 1, "r": 0, "e": 15, "w": 40, "ym": "2021-12", "y": "2021", "op": "emotion", "ar": "hiring", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6876552985342734336"}, {"c": "This is a very exciting one: Bed Bath & Beyond launches into Relationship Commerce with subscriptions by Ordergroove! It's always a real treat and honor to see ", "t": "Image", "l": 85, "cm": 8, "r": 2, "e": 95, "w": 41, "ym": "2021-12", "y": "2021", "op": "announcement", "ar": "customer_win", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6876175951475085313"}, {"c": "Excited and honored to be part of UK-based Halfords’ journey as they transform towards Relationship Commerce with Ordergroove", "t": "Image", "l": 14, "cm": 0, "r": 0, "e": 14, "w": 18, "ym": "2021-12", "y": "2021", "op": "emotion", "ar": "industry_pov", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6874069398680932353"}, {"c": "This is always my favorite time of year to slow down with family for a few days and reflect on the year. As we finish out 2021 strong, I couldn't be more excite", "t": "Video (LinkedIn Source)", "l": 14, "cm": 0, "r": 0, "e": 14, "w": 127, "ym": "2021-11", "y": "2021", "op": "announcement", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6869755134495350784"}, {"c": "Come join us as we continue building a world-class engineering team and culture at Ordergroove with 95% team member retention rates", "t": "Image", "l": 8, "cm": 0, "r": 0, "e": 8, "w": 21, "ym": "2021-11", "y": "2021", "op": "other", "ar": "hiring", "cl": "statement", "fp": true, "nm": false, "br": false, "dt": true, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6869032342628003840"}, {"c": "So much fun to see two mission-driven Ordergroove customers make a deal! Congrats to Sheets Laundry Club and my friend Daniel Lubetzky, Founder of our customer ", "t": "Video (LinkedIn Source)", "l": 51, "cm": 0, "r": 1, "e": 52, "w": 64, "ym": "2021-11", "y": "2021", "op": "other", "ar": "customer_win", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": true, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6868581600511295488"}, {"c": "Congrats to Sheets Laundry Club on their Shark Tank debut this Friday!  One of the most innovative products on the market and proud to be partners. I just hope ", "t": "Image", "l": 21, "cm": 3, "r": 0, "e": 24, "w": 34, "ym": "2021-11", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6866471455878721536"}, {"c": "What does it take to make a subscription experience a recurring revenue juggernaut?  Join Ordergroove on Nov. 18 at 2 P.M. EST for a conversation with Chemical ", "t": "Image", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 84, "ym": "2021-11", "y": "2021", "op": "other", "ar": "customer_win", "cl": "cta", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6865023162502004736"}, {"c": "Very excited to see Bevel make the switch and launch with Ordergroove! We're thrilled to be part of this entrepreneurial brand's journey while helping them put ", "t": "Image", "l": 37, "cm": 2, "r": 1, "e": 40, "w": 34, "ym": "2021-11", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6861720967807406080"}, {"c": "Love seeing our partner Home Depot’s “Account Benefits” focus on embracing Relationship Commerce via removing friction for their customers:", "t": "Image", "l": 41, "cm": 0, "r": 1, "e": 42, "w": 19, "ym": "2021-11", "y": "2021", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6861016909102612480"}, {"c": "Congratulations to Ordergroove's terrific partner, Hotel Chocolat, on their continued momentum! 'Our digital and subscription-continuity models surged ahead and", "t": "Article", "l": 65, "cm": 3, "r": 2, "e": 70, "w": 32, "ym": "2021-10", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6851179520175820800"}, {"c": "Congratulations Bulletproof 360 on launching your new subscription program with Ordergroove!   Bulletproof believes that the right nutrients can help you releas", "t": "Article", "l": 11, "cm": 1, "r": 0, "e": 12, "w": 70, "ym": "2021-08", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": true, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6830525352176173057"}, {"c": "Love seeing this terrific UK omnichannel brand put relationship commerce at the center of their business with Ordergroove + Salesforce!", "t": "Image", "l": 19, "cm": 0, "r": 0, "e": 19, "w": 20, "ym": "2021-07", "y": "2021", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6826659129462022144"}, {"c": "Very excited to welcome See's Candies to Ordergroove and thank you Pat Egan for indulging Brooklyn with your amazing product! I found a substitute team to help ", "t": "Image", "l": 72, "cm": 2, "r": 0, "e": 74, "w": 36, "ym": "2021-07", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6824053258731028480"}, {"c": "Welcome Eddie Hsieh to Ordergroove! Thrilled to partner with you at the helm of Ordergroove alliances as we continue to see the seismic shift from transactional", "t": "Image", "l": 23, "cm": 1, "r": 0, "e": 24, "w": 31, "ym": "2021-07", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6823733520222040064"}, {"c": "Exciting to see the world-class Schick brand moving from transactions to subscription with Ordergroove + Shopify!", "t": "Article", "l": 49, "cm": 1, "r": 0, "e": 50, "w": 16, "ym": "2021-07", "y": "2021", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": false, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6818967541554249728"}, {"c": "Another DTC brand making the switch to Ordergroove from a separate cart to supercharge the subscriber experience! I lived off of Cool Mint Chocolate Clif Bars w", "t": "Image", "l": 36, "cm": 2, "r": 0, "e": 38, "w": 46, "ym": "2021-06", "y": "2021", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6813927010625306624"}, {"c": "Excited to see Reckitt and the Enfamil brand make the switch from a separate cart to Ordergroove! Enfamil has always been a dream customer of mine and we’re exc", "t": "Image", "l": 34, "cm": 1, "r": 0, "e": 35, "w": 47, "ym": "2021-06", "y": "2021", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6811695382754684929"}, {"c": "Honored to welcome Conor O'Mahony to Ordergroove’s Board of Directors! Conor was most recently CPO of Klaviyo where he built a world-class product and team. DTC", "t": "Image", "l": 45, "cm": 3, "r": 0, "e": 48, "w": 54, "ym": "2021-05", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "hashtag", "fp": true, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6798279676424024064"}, {"c": "Congrats to our friends at Tractor Supply Company on scaling subscriptions across all 1,800+ stores at the POS! This team and business are stellar and we’re hon", "t": "Image", "l": 39, "cm": 2, "r": 0, "e": 41, "w": 38, "ym": "2021-03", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6772608021324546048"}, {"c": "Welcome Darwin's Natural Pet Products to the Ordergroove family! Love this story of personalization making it's way into subscriptions the same way it has for t", "t": "Image", "l": 27, "cm": 2, "r": 0, "e": 29, "w": 28, "ym": "2021-02", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6769663903300485121"}, {"c": "Ordergroove's hiring many product and engineering roles including this new Senior Product Manager to help us build the future of commerce that make consumers' l", "t": "Text", "l": 40, "cm": 6, "r": 2, "e": 48, "w": 39, "ym": "2021-02", "y": "2021", "op": "other", "ar": "hiring", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6768871356256919552"}, {"c": "Hello Missouri Star Quilt Company! Excited to welcome this subscription-first brand as they migrate to Ordergroove. Here's a great Forbes article on their incre", "t": "Article", "l": 37, "cm": 5, "r": 0, "e": 42, "w": 27, "ym": "2021-01", "y": "2021", "op": "other", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6757735852719378432"}, {"c": "Congrats to our friends at Peet's Coffee on the launch of their new DTC site and subscription business!  Love this iconic brand and honored to have Ordergroove ", "t": "Article", "l": 98, "cm": 5, "r": 1, "e": 104, "w": 41, "ym": "2021-01", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": false, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6755554936983056384"}, {"c": "Gartner estimates that by 2025, 20% of B2C revenue will be driven by subscriptions, making recurring revenue the biggest commerce macrotrend since the advent of", "t": "Image", "l": 15, "cm": 1, "r": 1, "e": 17, "w": 26, "ym": "2021-01", "y": "2021", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6755145151628353536"}, {"c": "Congrats to friend and former client, Lou Weiss on the launch of www.submachinery.com!  Another subscription-first Ordergroove agency partner run by a guy that ", "t": "Article", "l": 44, "cm": 9, "r": 0, "e": 53, "w": 37, "ym": "2021-01", "y": "2021", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6753360668013002753"}, {"c": "#5. Brands are investing in subscriptions to drive loyalty. Relationship Commerce = DTC SaaS.", "t": "Article", "l": 18, "cm": 0, "r": 0, "e": 18, "w": 14, "ym": "2020-12", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6749455101989146625"}, {"c": "Love this launch of DAVIDsTEA and Ordergroove! But even better is the amazing subscription traction this brand has seen in its first week 🚀  Check it out here: ", "t": "Image", "l": 31, "cm": 4, "r": 0, "e": 35, "w": 29, "ym": "2020-12", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6742455910679109632"}, {"c": "Excited to see another retailer launching omnichannel subscriptions with Belk's in-store subscription launch at POS + eCommerce with Ordergroove!", "t": "Article", "l": 26, "cm": 0, "r": 0, "e": 26, "w": 19, "ym": "2020-11", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6734501993399881728"}, {"c": "'The Subscription Commerce Market is projected to reach $478.2 billion by 2025 (68% CAGR).' Sound familiar? It's the same growth trajectory that the eCommerce m", "t": "Article", "l": 18, "cm": 2, "r": 0, "e": 20, "w": 30, "ym": "2020-11", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": true, "em": false, "lb": "medium"}, {"c": "'Like, magazine subscriptions Greg?” This was the most consistent response early on when I first launched Ordergroove. Fast forward to today, subscription is th", "t": "Article", "l": 60, "cm": 5, "r": 3, "e": 68, "w": 140, "ym": "2020-11", "y": "2020", "op": "question", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "extended"}, {"c": "The fastest growing segment of commerce...", "t": "Article", "l": 12, "cm": 0, "r": 0, "e": 12, "w": 6, "ym": "2020-10", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6723993323603836928"}, {"c": "Another rocketship in the making... CBDistillery is one of Ordergroove's first CBD launches and seeing massive recurring revenue growth out of the gate", "t": "Article", "l": 9, "cm": 0, "r": 0, "e": 9, "w": 23, "ym": "2020-10", "y": "2020", "op": "other", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6721477680170192896"}, {"c": "Excited to participate in tomorrow's webinar with Justin Swenson, VP of eCommerce at Yankee Candle, and our friends at Salesforce! We'll be discussing all thing", "t": "Article", "l": 16, "cm": 0, "r": 1, "e": 17, "w": 45, "ym": "2020-09", "y": "2020", "op": "emotion", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6716753693166972929"}, {"c": "Very excited to welcome Veestro as an Ordergroove customer! Caroline and I have been loving Veestro’s plant-based ready-to-go meals. With WFH, they’ve been terr", "t": "Image", "l": 56, "cm": 4, "r": 0, "e": 60, "w": 47, "ym": "2020-09", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6712713834530000896"}, {"c": "Welcome DAVIDsTEA as an Ordergroove customer! One of my favorite tea brands from when I lived in the West Village in Manhattan where there was a store on Bleeck", "t": "Image", "l": 49, "cm": 3, "r": 0, "e": 52, "w": 31, "ym": "2020-09", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "hashtag", "fp": true, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6711697325280104448"}, {"c": "Very proud for Ordergroove to be named a Best Place to Work in New York for the second year in a row! I love our company, mission, team and customers and out of", "t": "Image", "l": 141, "cm": 32, "r": 1, "e": 174, "w": 60, "ym": "2020-09", "y": "2020", "op": "emotion", "ar": "hiring", "cl": "link", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6709510739918503936"}, {"c": "Excited to announce Salesforce + Ordergroove's Subscriptions Quick Start in partnership with our friends at OSF Global Services and Tryzens Global! Transform fr", "t": "Article", "l": 41, "cm": 5, "r": 0, "e": 46, "w": 30, "ym": "2020-08", "y": "2020", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6704794361269489664"}, {"c": "Excited to be speaking all things subscriptions with Lily Varon today! Join us at 1pm ET or register and we'll send you the recording: https://lnkd.in/ggkaNdR", "t": "Image", "l": 9, "cm": 1, "r": 0, "e": 10, "w": 25, "ym": "2020-08", "y": "2020", "op": "emotion", "ar": "hiring", "cl": "cta", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6698929932346761216"}, {"c": "Excited to announce our friends at Tryzens Global are now certified to implement Ordergroove! Thank you, Andy Burton and team: https://lnkd.in/gnJUAiA", "t": "Article", "l": 34, "cm": 1, "r": 0, "e": 35, "w": 21, "ym": "2020-08", "y": "2020", "op": "emotion", "ar": "other", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6696857092864774144"}, {"c": "Great read about KIND written by our friends at Agentforce Commerce. The KIND Snacks subscription box is one of their top selling online SKUs. Many thanks to Da", "t": "Article", "l": 57, "cm": 2, "r": 4, "e": 63, "w": 43, "ym": "2020-07", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6691007933561626624"}, {"c": "Congrats L'Oréal on the recent re-launch of Color&CO’s subscription program! It’s a great relationship commerce-first experience built with Ordergroove's APIs t", "t": "Article", "l": 30, "cm": 0, "r": 2, "e": 32, "w": 27, "ym": "2020-07", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6686687857198931968"}, {"c": "Excited to partner with the innovative Elysium Health brand to advance their subscription service with Ordergroove and Shopify Plus. Love this NYC-based brand a", "t": "Image", "l": 12, "cm": 0, "r": 0, "e": 12, "w": 28, "ym": "2020-07", "y": "2020", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6684478865399701504"}, {"c": "Love seeing 'My Subscriptions' make it into the forefront of Home Depot's app! We love working with this world-class retailer and team:", "t": "Image", "l": 61, "cm": 5, "r": 1, "e": 67, "w": 22, "ym": "2020-06", "y": "2020", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short"}, {"c": "Love this brand and mission.  Welcome to Ordergroove, team 4ocean PBC!  We're honored to kick-off this partnership and be a part of your remarkable mission.  4o", "t": "Image", "l": 27, "cm": 1, "r": 0, "e": 28, "w": 42, "ym": "2020-05", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": false, "br": false, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6671867917363105794"}, {"c": "Want to launch a recurring revenue experience in 29 days? Bariatric Eating did on Ordergroove + Shopify Plus and is seeing rapid growth:", "t": "Image", "l": 7, "cm": 0, "r": 0, "e": 7, "w": 23, "ym": "2020-05", "y": "2020", "op": "question", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6664202322375135232"}, {"c": "Welcome DISH TV to Ordergroove! We’re very excited to welcome another digital subscription service making the switch to Ordergroove’s Relationship Commerce Clou", "t": "Image", "l": 32, "cm": 2, "r": 0, "e": 34, "w": 22, "ym": "2020-05", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6663101279285329920"}, {"c": "Very excited to welcome KILL CLIFF to the Ordergroove family! Another fast growing DTC brand on Shopify Plus that is embracing the power of frictionless experie", "t": "Image", "l": 15, "cm": 0, "r": 0, "e": 15, "w": 32, "ym": "2020-04", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6661691314670706688"}, {"c": "This is an incredible story. What an inspiring mission and organization Salesforce is. Thankful to be partners with this world-class team.", "t": "Article", "l": 11, "cm": 0, "r": 0, "e": 11, "w": 21, "ym": "2020-04", "y": "2020", "op": "announcement", "ar": "other", "cl": "gratitude", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6660869152921669632"}, {"c": "In this unprecedented time for businesses comes an unprecedented pace of transformation. Michaels Stores launching curbside pickup in 2 weeks. Kraft Heinz launc", "t": "Image", "l": 24, "cm": 1, "r": 0, "e": 25, "w": 52, "ym": "2020-04", "y": "2020", "op": "other", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6659481015746076672"}, {"c": "Very excited to see Lily's Kitchen launch relationship commerce on Ordergroove + Salesforce! Lily’s is a phenomenal UK-based brand and was a portfolio company o", "t": "Image", "l": 21, "cm": 1, "r": 0, "e": 22, "w": 40, "ym": "2020-04", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6658804089238888448"}, {"c": "Congratulations Steven Burchfield for winning Ordergroove's Best Makeshift Standing Desk Contest. Desperate times call for creative measures:", "t": "Image", "l": 30, "cm": 4, "r": 0, "e": 34, "w": 17, "ym": "2020-04", "y": "2020", "op": "emotion", "ar": "culture", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6653274718931566592"}, {"c": "Subscription re-platforms are now the majority of Ordergroove’s new customers, following a very similar trend to the eCommerce platform industry. Read about thi", "t": "Article", "l": 3, "cm": 0, "r": 0, "e": 3, "w": 26, "ym": "2020-03", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6640632608424243200"}, {"c": "Proud to be included in good company with Peter Fader alongside Ordergroove customers The Honest Company and GNC in this WSJ article! I've always had an allergi", "t": "Article", "l": 67, "cm": 9, "r": 2, "e": 78, "w": 180, "ym": "2020-02", "y": "2020", "op": "emotion", "ar": "industry_pov", "cl": "link", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6638175276343803904"}, {"c": "Excited to welcome the legendary Peet’s Coffee to Ordergroove! They’ll be replatforming their subscription and curated clubs businesses to Ordergroove’s Relatio", "t": "Image", "l": 103, "cm": 10, "r": 0, "e": 113, "w": 23, "ym": "2020-02", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6636323779851104256"}, {"c": "In-store pickup of a subscription is the holy grail for omnichannel retailers, enabling them to drive recurring and incremental foot traffic. Proud to announce ", "t": "Article", "l": 41, "cm": 2, "r": 0, "e": 43, "w": 32, "ym": "2020-02", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6635619805401501696"}, {"c": "Recurring revenue businesses are following the same path as transactional eCommerce businesses: they should be personalized. Read about one of the use cases whe", "t": "Article", "l": 22, "cm": 3, "r": 1, "e": 26, "w": 34, "ym": "2020-02", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6632678012057858051"}, {"c": "Excited to welcome the world-class brand Clarins to Ordergroove!", "t": "Image", "l": 42, "cm": 1, "r": 0, "e": 43, "w": 9, "ym": "2020-01", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6628369828614807552"}, {"c": "Excited to win NY’s Best Place to Work award for the 2nd year in a row! 2019 was a transformational year for Ordergroove as we sprinted from evangelizing a new ", "t": "Article", "l": 85, "cm": 10, "r": 9, "e": 104, "w": 103, "ym": "2020-01", "y": "2020", "op": "emotion", "ar": "culture", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "extended", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6625786740688867331"}, {"c": "Excited to see our terrific UK customer Hotel Chocolat launch subscriptions with Ordergroove and our friends at Lyons Consulting Group and Agentforce Commerce! ", "t": "Image", "l": 34, "cm": 1, "r": 3, "e": 38, "w": 39, "ym": "2020-01", "y": "2020", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6623243643501195264"}, {"c": "77% of retail leaders now report that a recurring revenue model is a prerequisite for doing business.  Read the full report here or visit Ordergroove next week ", "t": "Article", "l": 6, "cm": 0, "r": 1, "e": 7, "w": 33, "ym": "2020-01", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6621411455541493761"}, {"c": "Aloha Hawaii Volcanic! Excited to ignite recurring revenue with this fast-growing DTC brand on Shopify Plus", "t": "Article", "l": 3, "cm": 0, "r": 0, "e": 3, "w": 16, "ym": "2020-01", "y": "2020", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6620055516670377985"}, {"c": "Replatforming is no longer just for eCom platforms. Read about how Flow Hydration is making the switch to Ordergroove's One CheckoutTM on Shopify Plus:", "t": "Article", "l": 25, "cm": 0, "r": 0, "e": 25, "w": 24, "ym": "2019-12", "y": "2019", "op": "other", "ar": "customer_win", "cl": "cta", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6613504967238000640"}, {"c": "Honored to have received Ordergroove's latest patent from the USPTO!  One Checkout technology (integrated cart) is a critical component for any successful subsc", "t": "Article", "l": 64, "cm": 10, "r": 0, "e": 74, "w": 24, "ym": "2019-12", "y": "2019", "op": "emotion", "ar": "other", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6612392218407780352"}, {"c": "Welcome IL MAKIAGE to relationship commerce! Love seeing this fast-growing L Catterton brand launch a personalized subscription experience on top of Ordergroove", "t": "Article", "l": 11, "cm": 0, "r": 1, "e": 12, "w": 32, "ym": "2019-12", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": false, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6610964862623330304"}, {"c": "Welcome Ralph Robertson to Ordergroove as our Chief Revenue Officer! We're thrilled to have your leadership (and professional soccer skills) as part of our team", "t": "Article", "l": 40, "cm": 1, "r": 0, "e": 41, "w": 35, "ym": "2019-12", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6608060141629644800"}, {"c": "Thank you, Salesforce for throwing an incredibly productive conference.  One of the highlights... this amazing storyboard from the very talented Kate Milne #df1", "t": "Image", "l": 48, "cm": 4, "r": 3, "e": 55, "w": 23, "ym": "2019-11", "y": "2019", "op": "other", "ar": "event", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6603703744372719616"}, {"c": "Good morning from lovely #SanFrancisco! ☀️ Do you have plans for tonight? After #Dreamforce there's an invite-only event with Salesforce, DEG, a Merkle Company,", "t": "Image", "l": 11, "cm": 0, "r": 0, "e": 11, "w": 47, "ym": "2019-11", "y": "2019", "op": "question", "ar": "hiring", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6603351038131003392"}, {"c": "We won’t be talking politics today nor delivering a musical performance, but we will be discussing how brands and retailers are driving recurring revenue #df19:", "t": "Video (LinkedIn Source)", "l": 28, "cm": 1, "r": 0, "e": 29, "w": 25, "ym": "2019-11", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": true, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6602586997661937664"}, {"c": "Looking forward to my Dreamforce Theater Session next week with Erin Bitar and Erin Dorshorst where we’ll be discussing How The Honest Company Built Their Subsc", "t": "Image", "l": 58, "cm": 2, "r": 5, "e": 65, "w": 49, "ym": "2019-11", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": true, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6600374147828727808"}, {"c": "L’Oreal was one of Ordergroove's first customers. They were relationship commerce pioneers and took a risk on us back in the day.  It’s a real honor to deepen o", "t": "Image", "l": 50, "cm": 0, "r": 0, "e": 50, "w": 52, "ym": "2019-11", "y": "2019", "op": "other", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6599769612512960512"}, {"c": "Very excited to welcome one of our family's favorite products of all time, SodaStream, as an Ordergroove customer with Shopify Plus. This product has been revol", "t": "Image", "l": 62, "cm": 0, "r": 1, "e": 63, "w": 46, "ym": "2019-11", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6597532090047225856"}, {"c": "Very excited to welcome Flow as a new customer! Another innovative brand re-platforming to Ordergroove", "t": "Image", "l": 36, "cm": 0, "r": 0, "e": 36, "w": 15, "ym": "2019-10", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6594622105805959168"}, {"c": "Excited to see Pepsi get into relationship commerce with the launch of Drinkfinity.com’s subscription service! Check it out here: https://lnkd.in/d7e8ypR", "t": "Image", "l": 12, "cm": 0, "r": 3, "e": 15, "w": 20, "ym": "2019-10", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6592429797245239296"}, {"c": "20 years ago, most brands built their own eCommerce sites before replatforming to eCom platforms. The same transition is happening now with Relationship Commerc", "t": "Image", "l": 94, "cm": 1, "r": 14, "e": 109, "w": 49, "ym": "2019-10", "y": "2019", "op": "narrative", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6589542074238939136"}, {"c": "Excited to partner with fast-growing 5 Star Nutrition to supercharge recurring revenue online and in retail stores at POS:", "t": "Article", "l": 6, "cm": 2, "r": 0, "e": 8, "w": 19, "ym": "2019-10", "y": "2019", "op": "emotion", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6588084235494539265"}, {"c": "Announced 90 days ago. Live today. Thrilled for Ordergroove to be a part of the Shopify rocketship with our official launch: a direct integration into Shopify’s", "t": "Article", "l": 53, "cm": 5, "r": 0, "e": 58, "w": 39, "ym": "2019-10", "y": "2019", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6585566157271519232"}, {"c": "DTC brand MegaFood accelerates time to market with new subscription experience powered by Ordergroove Essentials + Salesforce Commerce Cloud 🚀  https://lnkd.in/", "t": "Article", "l": 17, "cm": 0, "r": 0, "e": 17, "w": 21, "ym": "2019-10", "y": "2019", "op": "other", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6584897126654849025"}, {"c": "Excited to see another customer launch Ordergroove’s SMS Commerce experience with L’Oreal’s IT Cosmetics:", "t": "Video (LinkedIn Source)", "l": 30, "cm": 2, "r": 2, "e": 34, "w": 14, "ym": "2019-09", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6583074078838542336"}, {"c": "Great to see another P&G brand go DTC with relationship commerce with the launch of Joy Shave: https://joyshave.ca/", "t": "Article", "l": 34, "cm": 0, "r": 1, "e": 35, "w": 18, "ym": "2019-09", "y": "2019", "op": "other", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6581941603156406273"}, {"c": "From Gartner's 2019 Magic Quadrant for Digital Commerce: “By 2023, 75% of organizations selling direct to consumers will offer subscription services…'", "t": "Text", "l": 21, "cm": 0, "r": 0, "e": 21, "w": 21, "ym": "2019-09", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": true, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6575041043891273729"}, {"c": "Great article on DTC by our partners at Shopify + Loren Padelford: 'We see this accelerating through new types of DTCs like subscriptions becoming huge.”  https", "t": "Article", "l": 20, "cm": 0, "r": 0, "e": 20, "w": 26, "ym": "2019-08", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6564953192013021184"}, {"c": "Excited to announce Ordergroove Essentials for emerging D2C brands just getting started in the recurring revenue game!  https://lnkd.in/dsnNHDj", "t": "Article", "l": 41, "cm": 2, "r": 1, "e": 44, "w": 18, "ym": "2019-08", "y": "2019", "op": "emotion", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6564508299293675520"}, {"c": "Congrats to Omer Sher and our friends at Pampers on the launch of IoT-powered Lumi!  https://lnkd.in/dK-ixyx #relationshipcommerce", "t": "Article", "l": 22, "cm": 0, "r": 1, "e": 23, "w": 17, "ym": "2019-07", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6562349169133006848"}, {"c": "Excited to announce @Ordergroove's new customers in the rapidly growing CBD market!  https://lnkd.in/dNVASDC", "t": "Article", "l": 23, "cm": 1, "r": 0, "e": 24, "w": 13, "ym": "2019-07", "y": "2019", "op": "emotion", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6559790652094201857"}, {"c": "2 years ago, Simon Rodrigue mentioned to me that Shopify was quickly coming upmarket.  Fast forward to today... it’s amazing how fast they’ve moved on this visi", "t": "Image", "l": 101, "cm": 16, "r": 15, "e": 132, "w": 64, "ym": "2019-06", "y": "2019", "op": "narrative", "ar": "industry_pov", "cl": "gratitude", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6549690378394578945"}, {"c": "Omnichannel recurring revenue = the holy grail of retail?  GNC thinks so. Excited to announce subscription services are live in 4,000+ GNC stores at the POS wit", "t": "Article", "l": 64, "cm": 4, "r": 3, "e": 71, "w": 31, "ym": "2019-06", "y": "2019", "op": "question", "ar": "industry_pov", "cl": "link", "fp": false, "nm": false, "br": true, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6546734558165901312"}, {"c": "Looking forward to joining friends and customers on stage next week at Salesforce Connections where I'll be moderating a panel on 'Subscriptions: Building a Pre", "t": "Article", "l": 9, "cm": 1, "r": 0, "e": 10, "w": 33, "ym": "2019-06", "y": "2019", "op": "other", "ar": "hiring", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6544986168285507584"}, {"c": "Subscriptions (Subscribe & Save), Memberships (Prime), Reorder (Alexa + Dash)... they're all part of Bezos' master plan of driving sticky recurring customers an", "t": "Article", "l": 17, "cm": 1, "r": 2, "e": 20, "w": 25, "ym": "2019-06", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6544227662531964928"}, {"c": "A glimpse of Ordergroove's HQ in downtown Manhattan... too bad they missed our 6,000 square foot terrace but caught our amazing team in action ;)", "t": "Article", "l": 32, "cm": 2, "r": 0, "e": 34, "w": 25, "ym": "2019-06", "y": "2019", "op": "other", "ar": "other", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6542835608195211265"}, {"c": "Sometimes the best news is no news. Proud of Ordergroove's world-class engineering team for avoiding any hiccups from GCP’s outage on Sunday: https://lnkd.in/dv", "t": "Article", "l": 30, "cm": 1, "r": 3, "e": 34, "w": 23, "ym": "2019-06", "y": "2019", "op": "other", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6541675977083236353"}, {"c": "What do Pepsi, Unilever and other Fortune 2000 brands have in common? They chose Ordergroove + BigCommerce for a best-in-class subscription experience: https://", "t": "Article", "l": 48, "cm": 0, "r": 13, "e": 61, "w": 23, "ym": "2019-05", "y": "2019", "op": "question", "ar": "industry_pov", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6537009639576354817"}, {"c": "What few are mentioning about Chewy’s S-1: 66% of their $3.5B in sales is subscription where net retention is 120% and customer satisfaction is highest.  https:", "t": "Article", "l": 32, "cm": 2, "r": 4, "e": 38, "w": 26, "ym": "2019-05", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": false, "br": true, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6534525529322770432"}, {"c": "Subscription sign-ups at the POS in stores? Here’s a quick Ordergroove story of a true omnichannel experience (vs just the buzz word ;): #relationshipcommerce", "t": "Video (LinkedIn Source)", "l": 40, "cm": 6, "r": 2, "e": 48, "w": 24, "ym": "2019-03", "y": "2019", "op": "question", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6514871422832168961"}, {"c": "Excited to see the world-class brand, Estee Lauder, driving recurring revenue with the launch of subscriptions on Bobbi Brown!", "t": "Text", "l": 29, "cm": 0, "r": 1, "e": 30, "w": 19, "ym": "2019-03", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6513445745968848896"}, {"c": "Excited to announce the expansion of OrderGroove's engineering leadership team with the addition of @Yuvaraj M. as our VP of Engineering! We're scaling up to me", "t": "Article", "l": 26, "cm": 2, "r": 0, "e": 28, "w": 37, "ym": "2019-03", "y": "2019", "op": "emotion", "ar": "industry_pov", "cl": "link", "fp": false, "nm": false, "br": false, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6511601088163041280"}, {"c": "Congratulations to our partner Raley’s Supermarkets for rolling out their Wine Club in more stores today! A true omnichannel experience driving recurring foot t", "t": "Image", "l": 50, "cm": 0, "r": 1, "e": 51, "w": 24, "ym": "2019-03", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6508383808771944448"}, {"c": "2018 was filled with amazing progress and milestones. But few make me as proud as the progress we made with @OrderGroove's culture and winning 2019 Best Compani", "t": "Article", "l": 31, "cm": 7, "r": 1, "e": 39, "w": 58, "ym": "2019-02", "y": "2019", "op": "other", "ar": "culture", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6498207227147485184"}, {"c": "Welcome to the party, Amazon!  SMS, email, voice, stores, onsite... every channel frictionless (re)ordering #relationshipcommerce:", "t": "Image", "l": 9, "cm": 0, "r": 0, "e": 9, "w": 15, "ym": "2019-01", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "hashtag", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6495651018661990400"}, {"c": "Proud to see a number of Ordergroove-powered programs in this article! 'Subscriptions represent about 10% of all US online sales, and more than 1% of all retail", "t": "Article", "l": 20, "cm": 0, "r": 0, "e": 20, "w": 30, "ym": "2019-01", "y": "2019", "op": "emotion", "ar": "customer_win", "cl": "hashtag", "fp": false, "nm": false, "br": false, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6493886528517861376"}, {"c": "What a whirlwind of a week! Thank you to all of our terrific customers, partners and prospective ones that we had the opportunity to meet with @nrf2019. Especia", "t": "Image", "l": 36, "cm": 1, "r": 3, "e": 40, "w": 39, "ym": "2019-01", "y": "2019", "op": "emotion", "ar": "event", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6491672167988621312"}, {"c": "Excited to share the stage with Colin Watts and Joe Keenan on Tuesday to talk Relationship Commerce and recurring revenue. Come join us Tuesday at 2:45pm!  #ret", "t": "Image", "l": 49, "cm": 4, "r": 6, "e": 59, "w": 29, "ym": "2019-01", "y": "2019", "op": "emotion", "ar": "hiring", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6490329110521352192"}, {"c": "In partnership with Ordergroove, a new analysis from NAPCO Research (with 152 participating $100M+ retailers) found that 54% of retailers expect significant gro", "t": "Article", "l": 20, "cm": 2, "r": 1, "e": 23, "w": 33, "ym": "2019-01", "y": "2019", "op": "other", "ar": "industry_pov", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6488828328559017984"}, {"c": "The success of our retail customers’ in-store pickup programs continues to blow my mind and cements the criticality of stores. @Ordergroove’s platform and data ", "t": "Video (LinkedIn Source)", "l": 29, "cm": 1, "r": 6, "e": 36, "w": 37, "ym": "2018-12", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6478627012243128320"}, {"c": "The Recurring Revenue Model (ie. Consumer SaaS): what took the software industry years to learn and tune is now spreading quickly to B2C Retail, despite physica", "t": "Article", "l": 16, "cm": 2, "r": 2, "e": 20, "w": 34, "ym": "2018-12", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6477911164301897728"}, {"c": "Proud to welcome the iconic retailer, Bed Bath & Beyond, to the Ordergroove family! Relationship commerce making its way to one of my favorite childhood retaile", "t": "Text", "l": 78, "cm": 11, "r": 1, "e": 90, "w": 27, "ym": "2018-12", "y": "2018", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": true, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6475374216832118784"}, {"c": "Excited to announce our partnership with the world-class brand, Mars Wrigley!", "t": "Text", "l": 86, "cm": 7, "r": 2, "e": 95, "w": 11, "ym": "2018-11", "y": "2018", "op": "emotion", "ar": "other", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6467812215251566592"}, {"c": "Proud of Ordergroove to be a small part of this big movement. Our offices will be closed on November 6th: https://lnkd.in/d7yfr7T", "t": "Article", "l": 26, "cm": 0, "r": 0, "e": 26, "w": 21, "ym": "2018-10", "y": "2018", "op": "emotion", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6460105359628464128"}, {"c": "'By engaging customers through a Relationship Commerce strategy that anticipates, and exceeds customers' needs for a full suite of products & services, Petco ha", "t": "Article", "l": 6, "cm": 0, "r": 0, "e": 6, "w": 32, "ym": "2018-10", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium"}, {"c": "Learn about Ordergroove’s Relationship Commerce experiences for grocery, starting with in-store enrollment! #relationshipcommerce #groceryshop", "t": "Image", "l": 7, "cm": 0, "r": 0, "e": 7, "w": 14, "ym": "2018-10", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6452498645794189312"}, {"c": "Congrats to my good friend Brett A. Hurt and the data.world team on closing their latest round of financing! This is one of the biggest ideas out there right no", "t": "Article", "l": 3, "cm": 0, "r": 0, "e": 3, "w": 51, "ym": "2018-09", "y": "2018", "op": "emotion", "ar": "customer_win", "cl": "statement", "fp": true, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6450457911117250560"}, {"c": "Relationship Commerce through the eyes of a veteran retail CIO (and a sneak peek at our new brand ;) https://lnkd.in/dQgjCKQ #relationshipcommerce", "t": "Article", "l": 18, "cm": 4, "r": 4, "e": 26, "w": 21, "ym": "2018-09", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6448970375572267008"}, {"c": "Come hear our Strategic Client Director, Jamie Johns, speak at KOTRA's event, K-Beauty in New York 2018, on Wednesday about the future of beauty and how to buil", "t": "Image", "l": 1, "cm": 0, "r": 0, "e": 1, "w": 60, "ym": "2018-09", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6446181677415882752"}, {"c": "Voice use cases: check the weather, turn on Spotify, turn off Spotify and reorder products (the only commerce use case that makes sense). It's only a matter of ", "t": "Article", "l": 9, "cm": 1, "r": 1, "e": 11, "w": 35, "ym": "2018-09", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "cta", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6445424084531580928"}, {"c": "2017 was a blessing in disguise for retail.  It got us back to the founding roots of focusing on the consumer.  This article made me smile; especially as Orderg", "t": "Article", "l": 17, "cm": 0, "r": 3, "e": 20, "w": 40, "ym": "2018-09", "y": "2018", "op": "other", "ar": "other", "cl": "statement", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6443135577322721280"}, {"c": "Good article by Bain & Company with Relationship Commerce right at the fulcrum: https://bit.ly/2OAZje4", "t": "Image", "l": 13, "cm": 0, "r": 2, "e": 15, "w": 14, "ym": "2018-08", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6435904304372023296"}, {"c": "The Razor-Razorblade Model can be applied to retail with strong consumer NPS the same way it has been to cell phones (ie. free iPhone w/ 2 yr contract). Any dev", "t": "Article", "l": 17, "cm": 1, "r": 4, "e": 22, "w": 38, "ym": "2018-08", "y": "2018", "op": "other", "ar": "other", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6433043371933073408"}, {"c": "Excited to announce our partnership with KIND and Jarid Lukin, bringing Relationship Commerce - including predictive text-to-reorder and product subscriptions -", "t": "Article", "l": 35, "cm": 0, "r": 1, "e": 36, "w": 26, "ym": "2018-07", "y": "2018", "op": "emotion", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6428235440167362560"}, {"c": "Excited to announce our partnership with KIND and Jarid Lukin, bringing Relationship Commerce - including predictive text-to-reorder and product subscriptions -", "t": "Article", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 26, "ym": "2018-07", "y": "2018", "op": "emotion", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6428235440167362560"}, {"c": "> 600,000 active subscriptions in 9 months since launch, across 750+ stores and online. The Impact: The Vitamin Shoppe's stock is up 70%+ YTD... https://lnkd.in", "t": "Text", "l": 39, "cm": 1, "r": 1, "e": 41, "w": 26, "ym": "2018-06", "y": "2018", "op": "other", "ar": "customer_win", "cl": "hashtag", "fp": false, "nm": true, "br": false, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6415938263659343872"}, {"c": "Congrats to our friends @thevitaminshoppe on launching the fastest growing subscription service EVER! 600,000 active subscriptions in 9 months, outpacing Netfli", "t": "Article", "l": 62, "cm": 5, "r": 11, "e": 78, "w": 28, "ym": "2018-05", "y": "2018", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": true, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6404356798760906752"}, {"c": "There's a lot of buzz about omnichannel, but few examples of retailers frictionlessly connecting their online and stores for consumers. Easier said than done, b", "t": "Article", "l": 11, "cm": 1, "r": 2, "e": 14, "w": 52, "ym": "2018-05", "y": "2018", "op": "other", "ar": "other", "cl": "statement", "fp": true, "nm": false, "br": false, "dt": true, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6403243791276351488"}, {"c": "@Ordergroove's Client Services team is growing with close to 10 new roles. Who's your favorite account manager or customer success professional that can be a st", "t": "Text", "l": 21, "cm": 3, "r": 2, "e": 26, "w": 35, "ym": "2018-05", "y": "2018", "op": "other", "ar": "hiring", "cl": "statement", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6402321607347499008"}, {"c": "Kiehl's exemplifies what Relationship Commerce is all about.  It's a real honor to be partnered with Julia Mavrodin and the entire world-class team @L'Oréal:  h", "t": "Article", "l": 20, "cm": 1, "r": 4, "e": 25, "w": 25, "ym": "2018-01", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6359402804171325440"}, {"c": "My take on retail this year; and no, it's not dead! :)  1. Data Will Enable Anticipatory and Frictionless Shopping Experiences 2. Text Messaging Will Become a M", "t": "Article", "l": 17, "cm": 0, "r": 0, "e": 17, "w": 33, "ym": "2018-01", "y": "2018", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium"}, {"c": "Had a lot of fun on the NY Stock Exchange yesterday with Cheddar talking about retail's movement to Relationship Commerce...   https://lnkd.in/eVpKDrX", "t": "Article", "l": 50, "cm": 6, "r": 1, "e": 57, "w": 21, "ym": "2017-12", "y": "2017", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6346695587290771456"}, {"c": "Expired underwear, anyone?https://lnkd.in/eRw4QtW", "t": "Article", "l": 12, "cm": 0, "r": 0, "e": 12, "w": 3, "ym": "2017-11", "y": "2017", "op": "question", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6342090915657637888"}, {"c": "Congratulations to our friends at The Vitamin Shoppe for truly leading with what a real and fully POS-integrated omnichannel experience is.  This is not smoke a", "t": "Article", "l": 17, "cm": 2, "r": 1, "e": 20, "w": 67, "ym": "2017-08", "y": "2017", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6302882491736817664"}, {"c": "The power of subscription-based retail: https://lnkd.in/dyabw_N  Congratulations to our partner, PetSmart, on making a bold move!", "t": "Article", "l": 18, "cm": 0, "r": 2, "e": 20, "w": 16, "ym": "2017-04", "y": "2017", "op": "other", "ar": "customer_win", "cl": "gratitude", "fp": false, "nm": false, "br": true, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6260406731394809856"}, {"c": "Thank you, pymnts! https://lnkd.in/dZqRQfv", "t": "Article", "l": 23, "cm": 1, "r": 0, "e": 24, "w": 4, "ym": "2017-03", "y": "2017", "op": "other", "ar": "other", "cl": "gratitude", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6243232999723266048"}, {"c": "Honored and humbled to be leading such an amazingly talented team here in NYC. Thank you to all of our clients who entrust us with growing their businesses - we", "t": "Article", "l": 21, "cm": 0, "r": 0, "e": 21, "w": 53, "ym": "2017-01", "y": "2017", "op": "emotion", "ar": "industry_pov", "cl": "gratitude", "fp": true, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6227166360963686400"}, {"c": "Frictonless shopping circa 1999 that is poised to become mainstream in 2017 (regardless of the patent expiration)... https://lnkd.in/d8T72YG", "t": "Article", "l": 4, "cm": 0, "r": 0, "e": 4, "w": 18, "ym": "2017-01", "y": "2017", "op": "other", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6222474527780139008"}, {"c": "Proud of the OrderGroove team on transforming PetSmart's business by simplifying their consumers' lives via PetSmart's first subscription service! https://lnkd.", "t": "Article", "l": 9, "cm": 0, "r": 3, "e": 12, "w": 20, "ym": "2016-11", "y": "2016", "op": "emotion", "ar": "industry_pov", "cl": "link", "fp": false, "nm": false, "br": true, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6201523460724846592"}, {"c": "Does anyone have a great domain broker to acquire a squatted domain name that they would recommend? Thank you in advance!", "t": "Text", "l": 0, "cm": 0, "r": 0, "e": 0, "w": 21, "ym": "2016-10", "y": "2016", "op": "other", "ar": "other", "cl": "gratitude", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6189844540074061825"}, {"c": "Great post and thank you Simon Rodrigue for the shout out! I'm grateful to have you as a friend and have always been honored to be partners with Walmart. Here's", "t": "Article", "l": 8, "cm": 0, "r": 1, "e": 9, "w": 38, "ym": "2016-08", "y": "2016", "op": "other", "ar": "industry_pov", "cl": "gratitude", "fp": true, "nm": true, "br": false, "dt": true, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6169560342822211584"}, {"c": "https://lnkd.in/dEGMaU9", "t": "Article", "l": 4, "cm": 0, "r": 1, "e": 5, "w": 1, "ym": "2016-07", "y": "2016", "op": "link_only", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6164837853453918209"}, {"c": "https://lnkd.in/eHszH6E", "t": "Article", "l": 4, "cm": 0, "r": 0, "e": 4, "w": 1, "ym": "2016-07", "y": "2016", "op": "link_only", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6161360391743029248"}, {"c": "Congratulations to my good friend Brett Hurt and the world-class team at data.world on coming out of stealth mode + their $14M Series A announcement today!   Th", "t": "Text", "l": 32, "cm": 5, "r": 1, "e": 38, "w": 74, "ym": "2016-07", "y": "2016", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": true, "nm": true, "br": false, "dt": true, "em": false, "lb": "long", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6158335728758644737"}, {"c": "Amazon is leveraging highly trusted brands to acquire a consumer relationship and then switching them to Amazon's private label once they hit the point of no re", "t": "Article", "l": 2, "cm": 0, "r": 1, "e": 3, "w": 42, "ym": "2016-05", "y": "2016", "op": "other", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6137983558578429953"}, {"c": "'By incorporating features similar to Amazon’s Subscribe and Save program, the fridge can ensure rapid, automated replenishment that eliminates the window to ch", "t": "Article", "l": 1, "cm": 0, "r": 0, "e": 1, "w": 33, "ym": "2016-03", "y": "2016", "op": "other", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "medium"}, {"c": "'...The “Birchbox for X” model… even monoliths like GM, News Corp. and Schneider predict that 40-100 percent of their revenues will eventually be from subscript", "t": "Article", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 26, "ym": "2016-03", "y": "2016", "op": "other", "ar": "industry_pov", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium"}, {"c": "https://lnkd.in/eVzqKB6", "t": "Article", "l": 1, "cm": 0, "r": 0, "e": 1, "w": 1, "ym": "2016-03", "y": "2016", "op": "link_only", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6113736371304742912"}, {"c": "https://lnkd.in/eQFuRgU", "t": "Article", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 1, "ym": "2016-02", "y": "2016", "op": "link_only", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6099950756931137536"}, {"c": "https://lnkd.in/eA5Pap5", "t": "Article", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 1, "ym": "2016-01", "y": "2016", "op": "link_only", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6097480232686665728"}, {"c": "Ordergroove's hiring Client Success Relationship Managers to work with some of the biggest and most innovative brands in the world!  What Client Services supers", "t": "Article", "l": 0, "cm": 0, "r": 1, "e": 1, "w": 34, "ym": "2015-10", "y": "2015", "op": "other", "ar": "hiring", "cl": "link", "fp": true, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6064469870366519296"}, {"c": "Taking off for Geneva, Switzerland to present at a P&G workshop about the transformation happening towards developing relationships with consumers via subscript", "t": "Text", "l": 22, "cm": 3, "r": 0, "e": 25, "w": 54, "ym": "2015-10", "y": "2015", "op": "other", "ar": "customer_win", "cl": "statement", "fp": true, "nm": false, "br": false, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6059107103174385664"}, {"c": "Very proud of the OrderGroove team on another record quarter! And the beautiful launch of subscription services on GNC.com this morning and Jarden yesterday.  W", "t": "Text", "l": 32, "cm": 1, "r": 0, "e": 33, "w": 58, "ym": "2015-10", "y": "2015", "op": "emotion", "ar": "customer_win", "cl": "gratitude", "fp": true, "nm": false, "br": true, "dt": false, "em": true, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6055203696889905152"}, {"c": "Friends: OrderGroove is hiring many roles including a NYC-based Technical Services Leader that will continue to scale our client solutions, implementations, tec", "t": "Text", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 53, "ym": "2015-07", "y": "2015", "op": "other", "ar": "hiring", "cl": "cta", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "medium", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6032953161956810752"}, {"c": "'Large companies need data to find the bathroom. Trust your inner consumer.' @pblackshaw #SignalPG", "t": "Text", "l": 3, "cm": 1, "r": 0, "e": 4, "w": 14, "ym": "2015-07", "y": "2015", "op": "other", "ar": "other", "cl": "hashtag", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short"}, {"c": "https://lnkd.in/eibBq44", "t": "Article", "l": 2, "cm": 0, "r": 1, "e": 3, "w": 1, "ym": "2015-07", "y": "2015", "op": "link_only", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6026548259609210880"}, {"c": "Very proud of Carolina Misan Alvo on her mention in today's Wall Street Journal! https://lnkd.in/eNECg8s", "t": "Article", "l": 1, "cm": 0, "r": 0, "e": 1, "w": 15, "ym": "2015-06", "y": "2015", "op": "emotion", "ar": "other", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:6016690241635700736"}, {"c": "Thrilled to officially announce the addition of Erin (Brockman) Rucker, my partner and our COO to the OrderGroove team! https://lnkd.in/bhMtYtj", "t": "Article", "l": 4, "cm": 0, "r": 0, "e": 4, "w": 20, "ym": "2015-04", "y": "2015", "op": "emotion", "ar": "other", "cl": "link", "fp": true, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5998453382489059328"}, {"c": "Great day offsite with the entire Ordergroove team today.  Honored to be leading such a talented team. 2015 is off to a roaring start!", "t": "Text", "l": 5, "cm": 1, "r": 0, "e": 6, "w": 24, "ym": "2015-02", "y": "2015", "op": "other", "ar": "other", "cl": "gratitude", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5970739460772487168"}, {"c": "OrderGroove's hiring software engineers & a Front-End Tech Lead: https://lnkd.in/b8P7uRS Please pass along anyone who comes to mind!", "t": "Article", "l": 1, "cm": 0, "r": 0, "e": 1, "w": 18, "ym": "2015-01", "y": "2015", "op": "other", "ar": "hiring", "cl": "link", "fp": false, "nm": true, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5964811558356803584"}, {"c": "Excited to see the terrific Burt's Bees brand launch their new OG-powered subscription program Hive to Home! http://www.burtsbees.com", "t": "Article", "l": 5, "cm": 0, "r": 1, "e": 6, "w": 18, "ym": "2014-12", "y": "2014", "op": "emotion", "ar": "customer_win", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5945989332740374528"}, {"c": "Honored to have ReStockIt.com as a client and David Redlich as a friend. http://lnkd.in/ddMkyZ3", "t": "Article", "l": 1, "cm": 0, "r": 0, "e": 1, "w": 14, "ym": "2014-10", "y": "2014", "op": "emotion", "ar": "other", "cl": "gratitude", "fp": false, "nm": true, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5925597436578922496"}, {"c": "Exciting to see Art of Shaving's beautiful subscription service live!  This is one I'm eager to sign-up for! http://lnkd.in/dAxJWnT", "t": "Article", "l": 4, "cm": 0, "r": 0, "e": 4, "w": 19, "ym": "2014-09", "y": "2014", "op": "other", "ar": "industry_pov", "cl": "link", "fp": true, "nm": false, "br": false, "dt": false, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5922464397023801344"}, {"c": "Very proud to announce Caroline's Kickstarter went live this AM http://lnkd.in/d3i9v7g. Are you petite? Spread the word & contribute!", "t": "Article", "l": 3, "cm": 0, "r": 1, "e": 4, "w": 19, "ym": "2014-07", "y": "2014", "op": "emotion", "ar": "other", "cl": "link", "fp": false, "nm": false, "br": false, "dt": false, "em": true, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5900231188768911360"}, {"c": "One of my favorite @fredwilson posts to date: http://lnkd.in/diJ8KXv", "t": "Article", "l": 0, "cm": 0, "r": 0, "e": 0, "w": 9, "ym": "2014-06", "y": "2014", "op": "other", "ar": "other", "cl": "link", "fp": true, "nm": false, "br": false, "dt": true, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5885715716593717248"}, {"c": "OrderGroove's hiring several Senior Software Engineers. I know you are too but what top talent comes to mind? $10K referral fees!", "t": "Text", "l": 2, "cm": 0, "r": 0, "e": 2, "w": 21, "ym": "2014-03", "y": "2014", "op": "other", "ar": "hiring", "cl": "statement", "fp": true, "nm": true, "br": false, "dt": true, "em": false, "lb": "short", "url": "https://www.linkedin.com/feed/update/urn:li:activity:5846797240257380352"}];
+
+// OG chart palette (solid colors, no gradients per brand spec)
+const OG_CHART = ['#00FF85','#009A50','#00FAFF','#0080B0','#004F8C','#EAFF00','#FF8C00','#D46AFF','#7821F5'];
+
+function median(arr) {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a,b) => a-b);
+  const mid = Math.floor(s.length/2);
+  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
+}
+
+function groupBy(arr, key) {
+  const groups = {};
+  arr.forEach(item => {
+    const k = typeof key === 'function' ? key(item) : item[key];
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(item);
+  });
+  return groups;
+}
+
+// Stats row
+function renderStats() {
+  const engagements = DATA.map(d => d.e);
+  const totalEng = engagements.reduce((a,b) => a+b, 0);
+  const med = median(engagements);
+  const topQ = DATA.filter(d => d.e >= 53).length;
+  document.getElementById('statsRow').innerHTML = [
+    { label: 'Total Posts', value: DATA.length, sub: 'Greg originals only' },
+    { label: 'Total Engagement', value: totalEng.toLocaleString(), sub: 'likes + comments + reposts' },
+    { label: 'Median Engagement', value: med, sub: 'per post' },
+    { label: 'Top Quartile', value: topQ, sub: 'posts with 53+ engagement' },
+  ].map((s,i) => `
+    <div class="stat-card animate-in" style="animation-delay:${0.04 + i*0.05}s">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>
+  `).join('');
+}
+
+// Multiplier cards
+function renderMultipliers() {
+  const rows = [
+    { key: 'fp', element: 'First-person voice (I, we, my)', emoji: '🗣️', liftLabel: null, callout: '<strong>The pattern:</strong> Posts where Greg sounds like Greg — not like a press release — perform <em>2x better</em>. "I" and "we" are engagement multipliers.' },
+    { key: 'br', element: 'Names a specific brand', emoji: '🏷️', liftLabel: null, callout: '<strong>Naming names matters.</strong> That\u2019s a <em>2.4x lift</em> just from naming names. The algorithm and the audience both reward concrete over abstract.' },
+    { key: 'nm', element: 'Tags real people by name', emoji: '👥', liftLabel: null, callout: null },
+    { key: 'em', element: 'Emotional language (proud, excited, love)', emoji: '❤️', liftLabel: null, callout: null },
+    { key: 'dt', element: 'Specific data points (%, $, numbers)', emoji: '📊', liftLabel: null, callout: null },
+  ];
+
+  const computed = rows.map(r => {
+    const a = median(DATA.filter(d => d[r.key]).map(d => d.e));
+    const b = median(DATA.filter(d => !d[r.key]).map(d => d.e));
+    const lift = b > 0 ? Math.round(((a - b) / b) * 100) : 0;
+    return { ...r, a, b, lift, liftText: `+${lift}%` };
+  });
+
+  // Add static rows from the analysis
+  computed.push({ element: 'Narrative opening hook', emoji: '🎣', liftText: '+3x', lift: 200, callout: null });
+  computed.push({ element: '41–100 word length', emoji: '📝', liftText: '+50–100%', lift: 75, callout: null });
+  computed.push({ element: 'Ends with question or CTA', emoji: '❓', liftText: '+50–70%', lift: 60, callout: null });
+  computed.push({ element: 'Image attachment (not article link)', emoji: '🖼️', liftText: '+55%', lift: 55, callout: null });
+
+  // Sort by lift descending
+  computed.sort((a, b) => b.lift - a.lift);
+
+  const maxLift = Math.max(...computed.map(c => c.lift));
+
+  document.getElementById('multGrid').innerHTML = `
+    <div class="ranked-list">
+      ${computed.map((c, i) => {
+        const barPct = maxLift > 0 ? Math.round((c.lift / maxLift) * 100) : 0;
+        const calloutHtml = c.callout ? `<div class="takeaway" style="margin:0 0 0 52px">${c.callout}</div>` : '';
+        return `
+          <div class="ranked-card">
+            <div class="ranked-num">${c.emoji}</div>
+            <div class="ranked-body">
+              <div class="ranked-label">${c.element}</div>
+              <div class="ranked-bar-track"><div class="ranked-bar-fill" style="width:${barPct}%"></div></div>
+            </div>
+            <div class="ranked-lift">${c.liftText}</div>
+          </div>
+          ${calloutHtml}
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+// Horizontal bar chart
+function renderHBar(containerId, data, colorIdx) {
+  const maxVal = Math.max(...data.map(d => d.value));
+  document.getElementById(containerId).innerHTML = data.map((d, i) => {
+    const pct = maxVal > 0 ? (d.value / maxVal) * 100 : 0;
+    const color = OG_CHART[colorIdx !== undefined ? colorIdx : i % OG_CHART.length];
+    return `
+      <div class="hbar-row">
+        <div class="hbar-label">${d.label}</div>
+        <div class="hbar-track">
+          <div class="hbar-fill" style="width:${pct}%;background:${color}">${d.value}</div>
+        </div>
+        <div class="hbar-meta">n=${d.count}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCharts() {
+  const fmtGroups = groupBy(DATA, 't');
+  renderHBar('chartFormat', Object.entries(fmtGroups).map(([k,v]) => ({
+    label: k, value: median(v.map(d=>d.e)), count: v.length
+  })).sort((a,b) => b.value - a.value), 1);
+
+  const opLabels = { narrative:'Narrative hook', announcement:'Announcement', emotion:'Emotion lead', question:'Question', other:'Other', link_only:'Link only' };
+  const opGroups = groupBy(DATA, 'op');
+  renderHBar('chartOpener', Object.entries(opGroups).map(([k,v]) => ({
+    label: opLabels[k]||k, value: median(v.map(d=>d.e)), count: v.length
+  })).sort((a,b) => b.value - a.value), 0);
+
+  const arLabels = { customer_win:'Customer Win', culture:'Culture/Team', hiring:'Hiring', industry_pov:'Industry POV', event:'Event', other:'Other' };
+  const arGroups = groupBy(DATA, 'ar');
+  renderHBar('chartArchetype', Object.entries(arGroups).map(([k,v]) => ({
+    label: arLabels[k]||k, value: median(v.map(d=>d.e)), count: v.length
+  })).sort((a,b) => b.value - a.value), 3);
+
+  const clLabels = { question:'Question', gratitude:'Gratitude', cta:'Call to Action', statement:'Statement', hashtag:'Hashtag', link:'Bare Link' };
+  const clGroups = groupBy(DATA, 'cl');
+  renderHBar('chartCloser', Object.entries(clGroups).map(([k,v]) => ({
+    label: clLabels[k]||k, value: median(v.map(d=>d.e)), count: v.length
+  })).sort((a,b) => b.value - a.value), 2);
+
+  const lbLabels = { short:'1-25 words', medium:'26-60 words', long:'61-100 words', extended:'100+ words' };
+  const lbOrder = ['extended','long','medium','short'];
+  const lbGroups = groupBy(DATA, 'lb');
+  renderHBar('chartLength', lbOrder.filter(k => lbGroups[k]).map(k => ({
+    label: lbLabels[k], value: median(lbGroups[k].map(d=>d.e)), count: lbGroups[k].length
+  })), 8);
+
+  const yrGroups = groupBy(DATA.filter(d=>d.y), 'y');
+  renderHBar('chartYear', Object.entries(yrGroups).sort((a,b) => b[0]-a[0]).map(([k,v]) => ({
+    label: k, value: median(v.map(d=>d.e)), count: v.length
+  })), 1);
+}
+
+// Dot strip
+function renderDotStrip() {
+  const sorted = [...DATA].sort((a,b) => b.e - a.e);
+  const maxE = sorted[0].e;
+  const q1 = sorted[Math.floor(sorted.length * 0.25)].e;
+  const q3 = sorted[Math.floor(sorted.length * 0.75)].e;
+  const tooltip = document.getElementById('tooltip');
+  const container = document.getElementById('dotStrip');
+
+  container.innerHTML = sorted.map((d,i) => {
+    const h = Math.max(3, (d.e / maxE) * 100);
+    const cls = d.e >= q1 ? 'top' : d.e >= q3 ? 'mid' : 'low';
+    return `<div class="dot-strip-bar ${cls}" style="height:${h}%" data-idx="${i}"></div>`;
+  }).join('');
+
+  container.addEventListener('mousemove', (ev) => {
+    const bar = ev.target.closest('.dot-strip-bar');
+    if (!bar) { tooltip.style.display = 'none'; return; }
+    const d = sorted[parseInt(bar.dataset.idx)];
+    tooltip.innerHTML = `
+      <div class="tt-eng">${d.e} engagement</div>
+      <div class="tt-meta">${d.l} likes &middot; ${d.cm} comments &middot; ${d.r} reposts &middot; ${d.w} words &middot; ${d.t}</div>
+      <div class="tt-content">"${d.c}..."</div>
+    `;
+    tooltip.style.display = 'block';
+    const rect = bar.getBoundingClientRect();
+    tooltip.style.left = Math.min(rect.left, window.innerWidth - 360) + 'px';
+    tooltip.style.top = (rect.top - tooltip.offsetHeight - 8) + 'px';
+  });
+  container.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+}
+
+// Post feed with filters
+let currentFilter = 'all';
+function renderPostFeed() {
+  const archetypes = ['all', 'customer_win', 'culture', 'hiring', 'industry_pov', 'event', 'other'];
+  const archetypeLabels = { all:'All', customer_win:'Customer Win', culture:'Culture', hiring:'Hiring', industry_pov:'Industry POV', event:'Event', other:'Other' };
+  const archetypeColors = {
+    customer_win:['var(--green-dim)','var(--og-green)'],
+    culture:['var(--blue-dim)','var(--blue)'],
+    hiring:['var(--yellow-dim)','var(--yellow)'],
+    industry_pov:['var(--purple-dim)','var(--purple)'],
+    event:['rgba(0,250,255,0.1)','#0080B0'],
+    other:['var(--surface)','var(--text-muted)']
+  };
+
+  document.getElementById('filterBar').innerHTML = archetypes.map(a => `
+    <button class="filter-pill ${currentFilter === a ? 'active' : ''}" data-filter="${a}">${archetypeLabels[a]}</button>
+  `).join('');
+
+  document.getElementById('filterBar').addEventListener('click', (ev) => {
+    const btn = ev.target.closest('.filter-pill');
+    if (!btn) return;
+    currentFilter = btn.dataset.filter;
+    renderPostFeed();
+  });
+
+  let filtered = currentFilter === 'all' ? DATA : DATA.filter(d => d.ar === currentFilter);
+  const sorted = [...filtered].sort((a,b) => b.e - a.e).slice(0, 20);
+
+  document.getElementById('postFeed').innerHTML = sorted.map((d, i) => {
+    const [bgCol, txtCol] = archetypeColors[d.ar] || archetypeColors.other;
+    const tags = [];
+    if (d.fp) tags.push(['1P', 'var(--green-dim)', 'var(--og-green)']);
+    if (d.br) tags.push(['Brand', 'rgba(0,250,255,0.1)', '#0080B0']);
+    if (d.dt) tags.push(['Data', 'var(--purple-dim)', 'var(--purple)']);
+    const rank = i + 1;
+    const inner = `
+        <div class="post-rank">#${rank}</div>
+        <div class="post-content">${d.c}</div>
+        <div class="post-tags">
+          <span class="post-tag" style="background:${bgCol};color:${txtCol}">${archetypeLabels[d.ar] || d.ar}</span>
+          ${tags.map(([lbl,bg,fg]) => `<span class="post-tag" style="background:${bg};color:${fg}">${lbl}</span>`).join('')}
+        </div>`;
+    return d.url
+      ? `<a href="${d.url}" target="_blank" rel="noopener" class="post-row post-link">${inner}</a>`
+      : `<div class="post-row">${inner}</div>`;
+  }).join('');
+}
+
+renderStats();
+renderMultipliers();
+renderCharts();
+renderDotStrip();
+renderPostFeed();
+</script>
+</body>
+</html>
